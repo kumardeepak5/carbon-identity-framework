@@ -103,10 +103,13 @@ public class AuthorizedAPIManagementServiceImpl implements AuthorizedAPIManageme
         }
         authorizedAPIDAO.deleteAuthorizedAPI(appId, apiId, IdentityTenantUtil.getTenantId(tenantDomain));
         try {
-            List<String> apiScopes = ApplicationManagementServiceComponentHolder.getInstance().getAPIResourceManager()
-                    .getAPIResourceById(apiId, tenantDomain).getScopes().stream().map(Scope::getName)
-                    .collect(Collectors.toList());
-            updateRolesWithRemovedScopes(appId, apiScopes, tenantDomain);
+            APIResource apiResponse = ApplicationManagementServiceComponentHolder.getInstance().getAPIResourceManager()
+                    .getAPIResourceById(apiId, tenantDomain);
+            if (null != apiResponse) {
+                List<String> apiScopes = apiResponse.getScopes().stream().map(Scope::getName)
+                        .collect(Collectors.toList());
+                updateRolesWithRemovedScopes(appId, apiScopes, tenantDomain);
+            }
         } catch (APIResourceMgtException e) {
             throw buildServerException("Error while retrieving API resource.", e);
         }
